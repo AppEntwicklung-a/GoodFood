@@ -11,25 +11,89 @@
 <meta name="apple-mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-status-bar-style" content="default"/>
 <meta name="apple-mobile-web-app-title" content="Ernährungsampel"/>
-<!-- build v5 -->
+<!-- build v6 -->
 <title>Ernährungsampel</title>
 <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
 <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
 <script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    darkMode: 'class',
+    theme: {
+      extend: {
+        colors: {
+          white:   'rgb(var(--c-white) / <alpha-value>)',
+          slate: {
+            50:  'rgb(var(--c-50) / <alpha-value>)',
+            100: 'rgb(var(--c-100) / <alpha-value>)',
+            200: 'rgb(var(--c-200) / <alpha-value>)',
+            300: 'rgb(var(--c-300) / <alpha-value>)',
+            400: 'rgb(var(--c-400) / <alpha-value>)',
+            500: 'rgb(var(--c-500) / <alpha-value>)',
+            600: 'rgb(var(--c-600) / <alpha-value>)',
+            700: 'rgb(var(--c-700) / <alpha-value>)',
+            800: 'rgb(var(--c-800) / <alpha-value>)',
+            900: 'rgb(var(--c-900) / <alpha-value>)',
+          }
+        }
+      }
+    }
+  };
+</script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script>
+  (function(){
+    try {
+      var t = localStorage.getItem('ea_theme') || 'system';
+      var dark = t==='dark' || (t==='system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+      if(dark) document.documentElement.classList.add('dark');
+    } catch(e){}
+  })();
+</script>
 <!-- Daten-Dateien (vor App laden) -->
-<script src="data/db.js?v=5"></script>
-<script src="data/lexikon.js?v=5"></script>
-<script src="data/tipps.js?v=5"></script>
-<script src="data/body.js?v=5"></script>
+<script src="data/db.js?v=6"></script>
+<script src="data/lexikon.js?v=6"></script>
+<script src="data/tipps.js?v=6"></script>
+<script src="data/body.js?v=6"></script>
 <style>
+
+  /* ── THEME-VARIABLEN ── */
+  :root {
+    --c-white: 255 255 255;
+    --c-50:  248 250 252;
+    --c-100: 241 245 249;
+    --c-200: 226 232 240;
+    --c-300: 203 213 225;
+    --c-400: 148 163 184;
+    --c-500: 100 116 139;
+    --c-600: 71 85 105;
+    --c-700: 51 65 85;
+    --c-800: 30 41 59;
+    --c-900: 15 23 42;
+    --c-appbg: #f3f2f7;
+  }
+  html.dark {
+    --c-white: 30 34 44;      /* "weiße" Karten → dunkles Grau */
+    --c-50:  22 26 34;        /* App-Flächen */
+    --c-100: 38 43 54;        /* leichte Flächen/Border */
+    --c-200: 51 58 72;        /* Border */
+    --c-300: 71 80 98;
+    --c-400: 130 140 158;     /* sekundärer Text */
+    --c-500: 160 170 188;
+    --c-600: 190 198 214;
+    --c-700: 210 216 228;
+    --c-800: 228 232 240;
+    --c-900: 241 245 249;     /* "dunkler" Text → hell */
+    --c-appbg: #12151c;
+  }
+  body { background: var(--c-appbg); }
   html, body, #root { height: 100%; overflow: hidden; }
   body { margin: 0; -webkit-font-smoothing: antialiased; background: #f3f2f7; }
   /* Utility classes used in app */
-  .label { display: block; font-size: 0.75rem; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.375rem; }
-  .input { display: block; width: 100%; border-radius: 0.75rem; border: 1px solid #e2e8f0; background: #f8fafc; padding: 0.625rem 0.75rem; font-size: 0.875rem; color: #0f172a; outline: none; box-sizing: border-box; }
-  .input:focus { border-color: #4ade80; box-shadow: 0 0 0 3px rgba(74,222,128,0.15); background: #fff; }
-  .section-title { font-size: 0.75rem; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.75rem; }
+  .label { display: block; font-size: 0.75rem; font-weight: 600; color: rgb(var(--c-500)); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.375rem; }
+  .input { display: block; width: 100%; border-radius: 0.75rem; border: 1px solid rgb(var(--c-200)); background: rgb(var(--c-50)); padding: 0.625rem 0.75rem; font-size: 0.875rem; color: rgb(var(--c-900)); outline: none; box-sizing: border-box; }
+  .input:focus { border-color: rgb(var(--c-400)); box-shadow: 0 0 0 3px rgb(var(--c-200) / 0.4); background: rgb(var(--c-white)); }
+  .section-title { font-size: 0.75rem; font-weight: 700; color: rgb(var(--c-500)); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.75rem; }
   .scrollbar-hide::-webkit-scrollbar { display: none; }
   .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
   .pb-safe { padding-bottom: env(safe-area-inset-bottom, 0px); }
@@ -38,10 +102,10 @@
 </head>
 <body>
 <div id="root">
-  <div style="display:flex;height:100%;align-items:center;justify-content:center;color:#94a3b8;font-family:system-ui,sans-serif;font-size:14px;">
+  <div style="display:flex;height:100%;align-items:center;justify-content:center;color:rgb(var(--c-400));font-family:system-ui,sans-serif;font-size:14px;">
     Ernährungsampel wird geladen …
   </div>
 </div>
-<script src="app.js?v=5"></script>
+<script src="app.js?v=6"></script>
 </body>
 </html>
