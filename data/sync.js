@@ -4,7 +4,7 @@ window.SYNC = (function () {
   var URL = "https://cekxwofsvuuuovubbkxs.supabase.co";
   var KEY = "sb_publishable_gIDXO05182ZhZvDQcCjc4Q_3uPKmeWB";
   var TABLE = "user_data";
-  var EMAIL_DOMAIN = "@goodfood.local"; // Benutzername -> interne Pseudo-Mail
+  var EMAIL_DOMAIN = "@goodfood-app.com"; // Benutzername -> interne Pseudo-Mail
 
   // Benutzername säubern (klein, keine Sonderzeichen außer . _ -)
   function normUser(u) {
