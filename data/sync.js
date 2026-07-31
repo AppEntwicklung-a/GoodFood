@@ -4,13 +4,19 @@ window.SYNC = (function () {
   var URL = "https://cekxwofsvuuuovubbkxs.supabase.co";
   var KEY = "sb_publishable_gIDXO05182ZhZvDQcCjc4Q_3uPKmeWB";
   var TABLE = "user_data";
-  var EMAIL_DOMAIN = "@goodfood-app.com"; // Benutzername -> interne Pseudo-Mail
-
-  // Benutzername säubern (klein, keine Sonderzeichen außer . _ -)
-  function normUser(u) {
-    return String(u || "").trim().toLowerCase().replace(/[^a-z0-9._-]/g, "");
+  // E-Mail normalisieren (trim + klein)
+  function normEmail(e) {
+    return String(e || "").trim().toLowerCase();
   }
-  function userToEmail(u) { return normUser(u) + EMAIL_DOMAIN; }
+  // gültige E-Mail?
+  function isEmail(e) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normEmail(e));
+  }
+  // Anzeigename aus E-Mail (Teil vor @)
+  function displayName(e) {
+    var n = normEmail(e).split("@")[0];
+    return n || "Nutzer";
+  }
 
   function baseHeaders() {
     return { "apikey": KEY, "Content-Type": "application/json" };
@@ -24,11 +30,11 @@ window.SYNC = (function () {
   }
 
   // ── Registrieren ──
-  function signUp(username, password) {
-    var email = userToEmail(username);
+  function signUp(email, password) {
+    email = normEmail(email);
     return fetch(URL + "/auth/v1/signup", {
       method: "POST", headers: baseHeaders(),
-      body: JSON.stringify({ email: email, password: password, data: { username: normUser(username) } })
+      body: JSON.stringify({ email: email, password: password })
     }).then(function (r) {
       return r.json().then(function (body) {
         if (!r.ok) {
@@ -42,8 +48,8 @@ window.SYNC = (function () {
   }
 
   // ── Anmelden ──
-  function signIn(username, password) {
-    var email = userToEmail(username);
+  function signIn(email, password) {
+    email = normEmail(email);
     return fetch(URL + "/auth/v1/token?grant_type=password", {
       method: "POST", headers: baseHeaders(),
       body: JSON.stringify({ email: email, password: password })
@@ -100,7 +106,7 @@ window.SYNC = (function () {
   }
 
   return {
-    normUser: normUser,
+    normEmail: normEmail, isEmail: isEmail, displayName: displayName,
     signUp: signUp, signIn: signIn, signOut: signOut, refresh: refresh,
     push: push, pull: pull
   };
